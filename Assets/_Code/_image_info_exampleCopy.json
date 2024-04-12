@@ -1,0 +1,64 @@
+{
+  "version": 0,
+  "categories": [
+    "HighTop",
+    "BasketBall",
+    "Slip-On"
+  ],
+  "files": [
+    {
+      "fileName": "CBI_Christmas.png",
+      "category": 0,
+      "order": 0,
+      "purcheaseStatus": 1
+    },
+    {
+      "fileName": "CBI_Jordans.png",
+      "category": 0,
+      "order": 1,
+      "purcheaseStatus": 2
+    },
+    {
+      "fileName": "CBI_Jordans2.png",
+      "category": 0,
+      "order": 2,
+      "purcheaseStatus": 2
+    },
+    {
+      "fileName": "CBI_Leaves.png",
+      "category": 1,
+      "order": 0,
+      "purcheaseStatus": 1
+    },
+    {
+      "fileName": "CBI_Lines.png",
+      "category": 1,
+      "order": 1,
+      "purcheaseStatus": 2
+    },
+    {
+      "fileName": "CBI_Nike.png",
+      "category": 1,
+      "order": 2,
+      "purcheaseStatus": 2
+    },
+    {
+      "fileName": "CBI_Nike2.png",
+      "category": 2,
+      "order": 0,
+      "purcheaseStatus": 1
+    },
+    {
+      "fileName": "CBI_SneakerBasic.png",
+      "category": 2,
+      "order": 1,
+      "purcheaseStatus": 1
+    },
+    {
+      "fileName": "CBI_Space.png",
+      "category": 2,
+      "order": 2,
+      "purcheaseStatus": 2
+    }
+  ]
+}
