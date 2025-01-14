@@ -1315,7 +1315,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 649862085}
   m_HandleRect: {fileID: 649862084}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3649,7 +3649,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1347081871}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: DebugConsole, Assembly-CSharp
         m_MethodName: Clear
         m_Mode: 1
@@ -8458,11 +8458,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43f3aa8375721574dbed712f2026f1d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _androidInterstitialId: ca-app-pub-5076333114096797/2326015472
-  _androidRewardedId: ca-app-pub-5076333114096797/4293703261
-  _iosInterstitialId: ca-app-pub-5076333114096797/8824036254
-  _iosRewardedId: ca-app-pub-5076333114096797/6353785580
-  _debugLogs: 0
+  _androidAppId: 20a449a3d
+  _androidInterstitialId: wjhjmbxr9tf0tpl7
+  _androidRewardedId: li0we0myq1ibc5qk
+  _iosAppId: 20a44d3c5
+  _iosInterstitialId: der2blftksbi93wl
+  _iosRewardedId: 9vaezxgtcsl5nedz
+  _adLoadingScreen: {fileID: 1391879756}
+  _debugLogs: 1
 --- !u!1 &1208413809
 GameObject:
   m_ObjectHideFlags: 0
@@ -8906,7 +8909,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1249999840
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9314,14 +9317,13 @@ GameObject:
   - component: {fileID: 1347081869}
   - component: {fileID: 1347081868}
   - component: {fileID: 1347081867}
-  - component: {fileID: 1347081871}
   m_Layer: 5
   m_Name: DebugCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1347081867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9406,19 +9408,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1347081871
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1347081866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f821c45ac6b27546974aef6aeacf5fb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _debugConsole: {fileID: 1422759741}
 --- !u!1 &1359922466
 GameObject:
   m_ObjectHideFlags: 0

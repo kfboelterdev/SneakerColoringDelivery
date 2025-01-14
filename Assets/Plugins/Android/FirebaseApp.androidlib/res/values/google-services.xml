@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/gcm_defaultSenderId,@string/google_storage_bucket,@string/project_id,@string/google_api_key,@string/google_crash_reporting_api_key,@string/google_app_id">
-  <string name="gcm_defaultSenderId" translatable="false">586176415007</string>
-  <string name="google_storage_bucket" translatable="false">sneaker-coloring-book.appspot.com</string>
-  <string name="project_id" translatable="false">sneaker-coloring-book</string>
-  <string name="google_api_key" translatable="false">AIzaSyALNksB7goKpUs-EqBKXICxC65RRJvaEAw</string>
-  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyALNksB7goKpUs-EqBKXICxC65RRJvaEAw</string>
-  <string name="google_app_id" translatable="false">1:586176415007:android:580ac4b39a325d85f7dc2a</string>
-</resources>

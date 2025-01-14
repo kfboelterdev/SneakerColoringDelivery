@@ -1,35 +1,40 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using GoogleMobileAds.Api;
-using GoogleMobileAds.Ump.Api;
-using System.Collections.Generic;
-using PimDeWitte.UnityMainThreadDispatcher;
+using com.unity3d.mediation;
+//using IronSourceJSON;
+//using System.Collections.Generic;
+//using PimDeWitte.UnityMainThreadDispatcher;
 
 public class AdHandler : MonoSingleton<AdHandler> {
 
     [Header("IDs")]
 
-    //[SerializeField] private string _androidAppId;
+    [Space(6)]
+
+    [SerializeField] private string _androidAppId;
     [SerializeField] private string _androidInterstitialId;
     [SerializeField] private string _androidRewardedId;
 
     [Space(24)]
 
-    //[SerializeField] private string _iosAppId;
+    [SerializeField] private string _iosAppId;
     [SerializeField] private string _iosInterstitialId;
     [SerializeField] private string _iosRewardedId;
-    //private string _appId;
+
     private string _interstitialId;
     private string _rewardedId;
+    private string _appId;
 
-    private InterstitialAd _interstitialAdCache;
-    private RewardedAd _rewardedAdCache;
+    private LevelPlayInterstitialAd _interstitialAdCache;
+    private LevelPlayRewardedAd _rewardedAdCache;
+
+    [SerializeField] private GameObject _adLoadingScreen;
 
     private bool _adShowingCurrently = false;
-    private bool _waitForConsent = true;
+    private Action _currentRewardAction;
 
-    public bool RewardedAvailable { get { return _rewardedAdCache != null; } }
+    public bool RewardedAvailable { get { return _rewardedAdCache.IsAdReady(); } }
 
     [Header("Debug")]
 
@@ -39,167 +44,158 @@ public class AdHandler : MonoSingleton<AdHandler> {
         base.Awake();
 
 #if UNITY_ANDROID
-        //_appId = _androidAppId;
+        _appId = _androidAppId;
         _interstitialId = _androidInterstitialId;
         _rewardedId = _androidRewardedId;
 #else
-        //_appId = _iosAppId;
+        _appId = _iosAppId;
         _interstitialId = _iosInterstitialId;
         _rewardedId = _iosRewardedId;
 #endif
 
-        ConsentInformation.Reset();
+        IronSource.Agent.init(_appId);
+        IronSource.Agent.setConsent(true);
+        IronSource.Agent.setMetaData("do_not_sell", "false");
+        IronSource.Agent.setMetaData("is_deviceid_optout", "true");
+        IronSource.Agent.setMetaData("is_child_directed", "true");
+        IronSource.Agent.setMetaData("Google_Family_Self_Certified_SDKS", "true");
 
-        ConsentDebugSettings debugSettings = new ConsentDebugSettings {
-            DebugGeography = DebugGeography.EEA,  // Geography appears as in EEA for debug devices.
-            TestDeviceHashedIds = new List<string> {
-                "b031baca-d0ad-413c-9e47-54408bc2665c"
-            }
-        };
-        ConsentRequestParameters consentRequest = new ConsentRequestParameters {
-            TagForUnderAgeOfConsent = false, //Here false means users are not under age.
-            ConsentDebugSettings = debugSettings,
-        };
+        IronSourceEvents.onConsentViewDidLoadSuccessEvent += onConsentViewDidLoadSuccessEvent;
+        IronSourceEvents.onSdkInitializationCompletedEvent += () => { IronSource.Agent.loadConsentViewWithType("pre"); Debug.Log("loadConsentViewWithType"); };
 
-        ConsentInformation.Update(consentRequest, consentError => {
-            if (consentError == null) _waitForConsent = false;
-            else DebugConsole.Instance.PrintToConsole($"OnConsentInfoUpdated() - Error n {consentError.ErrorCode} :\n{consentError.Message}");
-        });
+        LevelPlay.OnInitSuccess += Initializer;
+        LevelPlay.OnInitFailed += (levelPlayConfiguration) => Debug.Log($"LevelPlay Init Fail: (code - {levelPlayConfiguration.ErrorCode}) {levelPlayConfiguration.ErrorMessage}");
 
-        StartCoroutine(OnConsentInfoUpdatedRoutine());
+        LevelPlayAdFormat[] legacyAdFormats = new[] { LevelPlayAdFormat.REWARDED, LevelPlayAdFormat.INTERSTITIAL };
+        LevelPlay.Init(_appId, null, legacyAdFormats);
+
+        Debug.Log($"Initializing IronSource with App ID: {_appId}");
     }
 
-    private IEnumerator OnConsentInfoUpdatedRoutine() {
-        while (_waitForConsent) yield return null;
+    private void onConsentViewDidLoadSuccessEvent(string obj) {
+        IronSource.Agent.showConsentViewWithType("pre");
 
-        ConsentForm.LoadAndShowConsentFormIfRequired(formError => {
-            if (formError != null) DebugConsole.Instance.PrintToConsole($"LoadAndShowConsentFormIfRequired() - Error n {formError.ErrorCode} :\n{formError.Message}");
-            else if (ConsentInformation.CanRequestAds()) {
-                MobileAds.RaiseAdEventsOnUnityMainThread = true;
-                MobileAds.Initialize(initStatus => {
-                    if (_debugLogs) Debug.Log("AdMob Initialized");
+        Debug.Log("Consent View Loaded Successfully");
+    }
 
-                    LoadInterstitial();
-                    LoadRewarded();
-                });
-            }
-        });
+    private void Initializer(LevelPlayConfiguration configuration) {
+        _rewardedAdCache = new LevelPlayRewardedAd(_rewardedId);
+        _interstitialAdCache = new LevelPlayInterstitialAd(_interstitialId);
+
+        _rewardedAdCache.OnAdLoaded += (adUnitId) => Debug.Log($"Rewarded Ad Loaded: {adUnitId}");
+        _rewardedAdCache.OnAdLoadFailed += (adUnitId) => StartCoroutine(DelayRetryLoadAd(true, adUnitId.AdUnitId));
+        _rewardedAdCache.OnAdClosed += RenewRewarded;
+        _rewardedAdCache.OnAdRewarded += OnReward;
+
+        _interstitialAdCache.OnAdLoaded += (adUnitId) => Debug.Log($"Interstitial Ad Loaded: {adUnitId}");
+        _interstitialAdCache.OnAdLoadFailed += (adUnitId) => StartCoroutine(DelayRetryLoadAd(false, adUnitId.AdUnitId));
+        _interstitialAdCache.OnAdClosed += RenewInterstitial;
+
+        LoadInterstitial();
+        LoadRewarded();
+
+        Debug.Log("Initializer()");
     }
 
     private void LoadInterstitial() {
-        if (_interstitialAdCache == null) {
-            AdRequest adRequest = new AdRequest();
-            adRequest.Keywords.Add("unity-admob-sample");
+        Debug.Log($"{_interstitialAdCache != null} && !{(_interstitialAdCache != null ? _interstitialAdCache.IsAdReady() : "Can't Compare")}");
+        if (_interstitialAdCache != null && !_interstitialAdCache.IsAdReady()) {
+            _interstitialAdCache.LoadAd();
 
-            InterstitialAd.Load(_interstitialId, adRequest, (InterstitialAd interstitialAd, LoadAdError loadError) => {
-                if (loadError != null || interstitialAd == null) {
-                    StartCoroutine(DelayRetryLoadAd(false));
-                    DebugConsole.Instance.PrintToConsole($"Could not load Interstitial Ad properly. \nError: {loadError}");
-                }
-                else {
-                    _interstitialAdCache = interstitialAd;
-                    _interstitialAdCache.OnAdFullScreenContentClosed += RenewInterstitial;
-                    _interstitialAdCache.OnAdFullScreenContentFailed += RenewInterstitial;
-
-                    if (_debugLogs) Debug.Log("Interstitial Loaded");
-                }
-            });
+            Debug.Log("LoadInterstitial");
         }
     }
 
-    private void RenewInterstitial() {
+    private void RenewInterstitial(LevelPlayAdInfo adInfo) {
         _adShowingCurrently = false;
-        _interstitialAdCache.Destroy();
-        _interstitialAdCache = null;
         LoadInterstitial();
-    }
-
-    private void RenewInterstitial(AdError error) {
-        DebugConsole.Instance.PrintToConsole($"Error ocurred, loading new Interstitial Ad. \nError: {error}");
-        RenewInterstitial();
     }
 
     public void ShowInterstitial() {
         if (!_adShowingCurrently) {
-            if (_interstitialAdCache != null) {
+            if (_interstitialAdCache != null && _interstitialAdCache.IsAdReady()) {
                 _adShowingCurrently = true;
-                _interstitialAdCache.Show();
+                _interstitialAdCache.ShowAd();
+
+                Debug.Log("ShowInterstital");
             }
-            else if (_debugLogs) Debug.LogWarning("Interstitial Ad was not Ready to Show");
+            else StartCoroutine(ShowInterstitialRoutine());
         }
+        else Debug.LogWarning("Trying to show interstitial but Ad is already showing!");
+    }
+
+    private IEnumerator ShowInterstitialRoutine() {
+        Debug.LogWarning("Trying to show interstitial but it isn't loaded! Will play as soon as loaded");
+
+        while (_interstitialAdCache == null) yield return null;
+        while (!_interstitialAdCache.IsAdReady()) yield return null;
+
+        _adShowingCurrently = true;
+        _interstitialAdCache.ShowAd();
+
+        Debug.Log("ShowInterstital");
+
     }
 
     private void LoadRewarded() {
-        if (_rewardedAdCache == null) {
+        Debug.Log($"{_rewardedAdCache != null} && !{(_rewardedAdCache != null ? _rewardedAdCache.IsAdReady() : "Can't Compare")}");
+        if (_rewardedAdCache != null && !_rewardedAdCache.IsAdReady()) {
+            _rewardedAdCache.LoadAd();
 
-            AdRequest adRequest = new AdRequest();
-            adRequest.Keywords.Add("unity-admob-sample");
-
-            RewardedAd.Load(_rewardedId, adRequest, (RewardedAd rewardedAd, LoadAdError loadError) => {
-
-                if (loadError != null || rewardedAd == null) {
-                    StartCoroutine(DelayRetryLoadAd(true));
-                    DebugConsole.Instance.PrintToConsole($"Could not load Rewarded Ad properly. \nError: {loadError}");
-                }
-                else {
-                    _rewardedAdCache = rewardedAd;
-                    _rewardedAdCache.OnAdFullScreenContentClosed += RenewRewarded;
-                    _rewardedAdCache.OnAdFullScreenContentFailed += RenewRewarded;
-
-                    if (_debugLogs) Debug.Log("Rewarded Loaded");
-                }
-            });
+            Debug.Log("RewardedAdCache");
         }
     }
 
-    private void RenewRewarded() {
+    private void RenewRewarded(LevelPlayAdInfo adInfo) {
         _adShowingCurrently = false;
-        _rewardedAdCache.Destroy();
-        _rewardedAdCache = null;
         LoadRewarded();
-    }
-
-    private void RenewRewarded(AdError error) {
-        DebugConsole.Instance.PrintToConsole($"Error ocurred, loading new Rewarded Ad. \nError: {error}");
-        RenewRewarded();
     }
 
     public bool ShowRewarded(Action rewardAction) {
         if (!_adShowingCurrently) {
-            if (_rewardedAdCache != null && _rewardedAdCache.CanShowAd()) {
+            _currentRewardAction = rewardAction;
+            if (_rewardedAdCache != null && _rewardedAdCache.IsAdReady()) {
                 _adShowingCurrently = true;
-                _rewardedAdCache.Show(reward => UnityMainThreadDispatcher.Instance.Enqueue(rewardAction));
+                _rewardedAdCache.ShowAd();
+
+                Debug.Log("ShowRewarded");
                 return true;
             }
-            if (_debugLogs) Debug.LogWarning("Rewarded Ad was not Ready to Show");
+            StartCoroutine(ShowRewardedRoutine());
         }
         return false;
     }
 
-    private IEnumerator DelayRetryLoadAd(bool isRewarded) {
-        yield return new WaitForSeconds(5f);
+    private IEnumerator ShowRewardedRoutine() {
+        Debug.LogWarning("Trying to show rewarded but it isn't loaded! Will play as soon as loaded");
+
+        _adLoadingScreen.SetActive(true);
+        while (_rewardedAdCache == null) yield return null;
+        while (!_rewardedAdCache.IsAdReady()) yield return null;
+        _adLoadingScreen.SetActive(false);
+
+        _adShowingCurrently = true;
+        _rewardedAdCache.ShowAd();
+
+        Debug.Log("ShowRewarded");
+    }
+
+    private void OnReward(LevelPlayAdInfo placement, LevelPlayReward adInfo) {
+        _currentRewardAction.Invoke();
+        _currentRewardAction = null;
+    }
+
+    private IEnumerator DelayRetryLoadAd(bool isRewarded, string adUnitId) {
+        Debug.LogWarning($"{(isRewarded ? "Rewarded" : "Interstitial")} Ad Failed to Load: {adUnitId}, trying again in 3 seconds");
+
+        yield return new WaitForSeconds(3f);
 
         if (isRewarded) LoadRewarded();
         else LoadInterstitial();
     }
 
-    // Debug
-    public void ShowPrivacyForm() {
-        ConsentForm.ShowPrivacyOptionsForm(formError => {
-            Debug.Log("ConsentForm.ShowPrivacyOptionsForm()'s onDismissed callback");
-            if (formError != null) {
-                Debug.Log($"Privacy Options Requirement Status: {ConsentInformation.PrivacyOptionsRequirementStatus}");
-                Debug.Log($"Consent Status: {ConsentInformation.ConsentStatus}");
-                Debug.Log($"Is Consent Form Available: {ConsentInformation.IsConsentFormAvailable()}");
-                Debug.Log($"Can Request Ads: {ConsentInformation.CanRequestAds()}");
-            }
-            else Debug.Log($"FormError [{formError.ErrorCode}]:\n{formError.Message}");
-        });
-    }
-
-    public void ResetConsent() {
-        ConsentInformation.Reset();
-        Application.Quit();
+    void OnApplicationPause(bool isPaused) {
+        IronSource.Agent.onApplicationPause(isPaused);
     }
 
 }

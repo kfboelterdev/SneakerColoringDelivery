@@ -424,26 +424,7 @@ public class ImageListUpdater : MonoSingleton<ImageListUpdater> {
         _adPopup.SetActive(true);
         _adPopupTex.texture = caracteristics.name.Substring(0, 3) == "PD_" ? Resources.Load<Texture2D>(caracteristics.name) : SaveSystem.Instance.ReadImageBase(caracteristics.name);
         _adPopupUnlockBtn.onClick.RemoveAllListeners();
-        _adPopupUnlockBtn.onClick.AddListener(() => {
-            if (!AdHandler.Instance.ShowRewarded(() => CloseAdToUnlockSuccess(caracteristics.arrayPos))) StartCoroutine(WaitForRewardedAdLoad(caracteristics));
-        });
-    }
-
-    private IEnumerator WaitForRewardedAdLoad(ImageCaracteristics caracteristics) {
-        float timer = 6f;
-        _adLoadingScreen.SetActive(true);
-        while (AdHandler.Instance.RewardedAvailable) {
-            timer -= Time.unscaledDeltaTime;
-
-            if (timer <= 0) {
-                StartCoroutine(ActionPopup("No Ad Available"));
-                _adLoadingScreen.SetActive(false);
-
-                yield break;
-            }
-        }
-        _adLoadingScreen.SetActive(true);
-        AdHandler.Instance.ShowRewarded(() => CloseAdToUnlockSuccess(caracteristics.arrayPos));
+        _adPopupUnlockBtn.onClick.AddListener(() => AdHandler.Instance.ShowRewarded(() => CloseAdToUnlockSuccess(caracteristics.arrayPos)));
     }
 
     private void CloseAdToUnlockSuccess(Vector2Int arrayPos) {

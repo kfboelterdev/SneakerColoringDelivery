@@ -7,28 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:586176415007:android:580ac4b39a325d85f7dc2a",
-        "android_client_info": {
-          "package_name": "Com.Sneakerz.SneakerColoringBook"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyALNksB7goKpUs-EqBKXICxC65RRJvaEAw"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
         "mobilesdk_app_id": "1:586176415007:android:3f36aee60deba972f7dc2a",
         "android_client_info": {
-          "package_name": "com.sneakerz.sneakercoloringbook"
+          "package_name": "com.sneakerz.sneakerColoringBook"
         }
       },
       "oauth_client": [],

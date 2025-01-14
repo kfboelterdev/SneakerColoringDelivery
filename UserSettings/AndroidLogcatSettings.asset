@@ -3,51 +3,135 @@
     "m_SelectedProcess": {
         "deviceId": "FAGATGNJYXLVQC79",
         "name": "com.sneakerz.sneakerColoringBook",
-        "processId": 3733,
+        "processId": 19933,
         "exited": false
     },
     "m_SelectedPriority": 1,
     "m_KnownProcessesForSerialization": [
         {
             "deviceId": "FAGATGNJYXLVQC79",
-            "name": "com.sneakerz.sneakerColoringBook",
-            "processId": 25410,
-            "exited": true
-        },
-        {
-            "deviceId": "FAGATGNJYXLVQC79",
-            "name": "com.sneakerz.sneakerColoringBook",
-            "processId": 27857,
-            "exited": true
-        },
-        {
-            "deviceId": "FAGATGNJYXLVQC79",
-            "name": "com.sneakerz.sneakerColoringBook",
-            "processId": 29228,
-            "exited": true
-        },
-        {
-            "deviceId": "FAGATGNJYXLVQC79",
-            "name": "com.sneakerz.sneakerColoringBook",
-            "processId": 6587,
-            "exited": true
-        },
-        {
-            "deviceId": "FAGATGNJYXLVQC79",
-            "name": "com.sneakerz.sneakerColoringBook",
-            "processId": 25103,
+            "name": "com.miui.home",
+            "processId": 2262,
             "exited": false
         },
         {
             "deviceId": "FAGATGNJYXLVQC79",
             "name": "com.sneakerz.sneakerColoringBook",
-            "processId": 31882,
-            "exited": false
+            "processId": 5858,
+            "exited": true
         },
         {
             "deviceId": "FAGATGNJYXLVQC79",
             "name": "com.sneakerz.sneakerColoringBook",
-            "processId": 3733,
+            "processId": 10508,
+            "exited": true
+        },
+        {
+            "deviceId": "FAGATGNJYXLVQC79",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 13516,
+            "exited": true
+        },
+        {
+            "deviceId": "FAGATGNJYXLVQC79",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 14405,
+            "exited": true
+        },
+        {
+            "deviceId": "FAGATGNJYXLVQC79",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 19933,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 23913,
+            "exited": true
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 25652,
+            "exited": true
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 26157,
+            "exited": true
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 26988,
+            "exited": true
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.twitter.android",
+            "processId": 7813,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 25034,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 12949,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 18695,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 19924,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 20641,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 21396,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 22861,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 6048,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 1011,
+            "exited": false
+        },
+        {
+            "deviceId": "0086017630",
+            "name": "com.sneakerz.sneakerColoringBook",
+            "processId": 32310,
             "exited": false
         }
     ],
